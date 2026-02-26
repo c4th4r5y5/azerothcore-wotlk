@@ -1046,13 +1046,19 @@ class spell_rog_turn_the_tables : public AuraScript
 };
 
 // 52910, 52914, 52915 - Turn the Tables (proc)
-class spell_rog_turn_the_tables_proc : public AuraScript
+class spell_rog_turn_the_tables_proc : public SpellScript
 {
-    PrepareAuraScript(spell_rog_turn_the_tables_proc);
+    PrepareSpellScript(spell_rog_turn_the_tables_proc);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.clear();
+        targets.push_back(GetCaster());
+    }
 
     void Register() override
     {
-        // No special handling needed - default behavior
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_turn_the_tables_proc::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
     }
 };
 
