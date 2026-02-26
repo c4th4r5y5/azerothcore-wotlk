@@ -1,3 +1,4 @@
+-- DB update 2026_02_26_02 -> 2026_02_26_03
 --
 DELETE FROM `command` WHERE `name` IN ('spellinfo', 'spellinfo attributes', 'spellinfo effects', 'spellinfo targets', 'spellinfo all');
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
