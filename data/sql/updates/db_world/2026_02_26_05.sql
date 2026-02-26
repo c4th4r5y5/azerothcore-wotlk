@@ -1,3 +1,4 @@
+-- DB update 2026_02_26_04 -> 2026_02_26_05
 -- Gluth
 DELETE FROM `creature_loot_template` WHERE (`Entry` = 15932) AND `GroupId` = 2;
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
