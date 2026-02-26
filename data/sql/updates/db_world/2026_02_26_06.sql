@@ -1,3 +1,4 @@
+-- DB update 2026_02_26_05 -> 2026_02_26_06
 -- Remove duplicate spell scripts that caused handlers to fire twice
 DELETE FROM `spell_script_names` WHERE `spell_id` = 54937 AND `ScriptName` = 'spell_pal_glyph_of_holy_light_proc';
 DELETE FROM `spell_script_names` WHERE `spell_id` = 41404 AND `ScriptName` = 'spell_black_temple_dementia_aura';
