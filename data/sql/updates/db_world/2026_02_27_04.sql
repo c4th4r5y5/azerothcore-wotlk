@@ -1,3 +1,4 @@
+-- DB update 2026_02_27_03 -> 2026_02_27_04
 -- Update gameobject 'Doodad_OrcBonFire01' with sniffed values
 -- new spawns
 DELETE FROM `gameobject` WHERE (`id` IN (192612)) AND (`guid` IN (50));
