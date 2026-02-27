@@ -1,3 +1,4 @@
+-- DB update 2026_02_27_04 -> 2026_02_27_05
 -- Beacon of Light (53651): restrict proc to Holy Light, Flash of Light, Holy Shock, Lay on Hands
 -- Previously had no SpellFamily filter, allowing unintended heals to transfer:
 -- Glyph of Holy Light (54968), Seal of Light (20167), JoL (20267)
