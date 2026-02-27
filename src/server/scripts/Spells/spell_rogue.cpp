@@ -1062,6 +1062,30 @@ class spell_rog_turn_the_tables_proc : public SpellScript
     }
 };
 
+// -51634 - Focused Attacks
+// Block Fan of Knives offhand from proccing
+class spell_rog_focused_attacks : public AuraScript
+{
+    PrepareAuraScript(spell_rog_focused_attacks);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Block Fan of Knives offhand (0x40000) from proccing
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (spellInfo && spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE
+            && (spellInfo->SpellFamilyFlags[1] & 0x40000)
+            && (eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK))
+            return false;
+
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_focused_attacks::CheckProc);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_savage_combat);
@@ -1092,4 +1116,5 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_rog_honor_among_thieves_proc, spell_rog_honor_among_thieves_proc_aura);
     RegisterSpellScript(spell_rog_turn_the_tables);
     RegisterSpellScript(spell_rog_turn_the_tables_proc);
+    RegisterSpellScript(spell_rog_focused_attacks);
 }
