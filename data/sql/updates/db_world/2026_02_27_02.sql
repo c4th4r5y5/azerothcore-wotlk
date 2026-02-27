@@ -1,3 +1,4 @@
+-- DB update 2026_02_27_01 -> 2026_02_27_02
 -- Fix "on cast" procs: add missing NONE DmgClass flags and correct SpellPhaseMask
 -- These spells have tooltips like "chance on successful spellcast" but were missing
 -- DONE_SPELL_NONE_DMG_CLASS_POS/NEG flags, preventing NONE-DmgClass spells from
