@@ -1,3 +1,4 @@
+-- DB update 2026_02_27_05 -> 2026_02_27_06
 -- Update gameobject 'unnamed yellow dome' with sniffed values
 -- updated spawns
 DELETE FROM `gameobject` WHERE (`id` IN (193796, 193795)) AND (`guid` IN (268695, 268770));
