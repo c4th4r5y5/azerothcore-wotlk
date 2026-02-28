@@ -1,3 +1,4 @@
+-- DB update 2026_02_28_03 -> 2026_02_28_04
 -- Cold Blood: Bind AuraScript to prevent charge consumption on Mutilate MH/OH,
 -- so both sub-spells get the guaranteed crit.
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_cold_blood';
