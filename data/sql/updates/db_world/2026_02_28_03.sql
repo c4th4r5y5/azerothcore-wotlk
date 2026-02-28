@@ -1,3 +1,4 @@
+-- DB update 2026_02_28_02 -> 2026_02_28_03
 -- Description: Fix missing damage values for various ILVL 146, 232, and 264 player weapons.
 -- Reason: These items currently have 0 damage in the database, making them unusable for players.
 -- Values sourced from Wowhead (Wrath Classic).
