@@ -1,3 +1,4 @@
+-- DB update 2026_02_28_04 -> 2026_02_28_05
 -- Add new sniffed Waypoints
 DELETE FROM `waypoint_data` WHERE `id` IN (13679000, 13678900, 13679900, 13681200, 13679200, 13680600, 13679100, 13679400, 13645300, 13724500);
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
