@@ -1,3 +1,4 @@
+-- DB update 2026_02_28_01 -> 2026_02_28_02
 -- Add lfg cooldown command to the command table
 DELETE FROM `command` WHERE `name` IN ('lfg cooldown');
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
