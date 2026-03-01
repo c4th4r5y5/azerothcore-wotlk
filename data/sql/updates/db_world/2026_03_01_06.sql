@@ -1,3 +1,4 @@
+-- DB update 2026_03_01_05 -> 2026_03_01_06
 -- Seal of Light (20165): Fix PPM 20 -> 10
 UPDATE `spell_proc` SET `ProcsPerMinute` = 10 WHERE `SpellId` = 20165;
 
