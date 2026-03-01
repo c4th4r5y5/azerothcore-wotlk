@@ -1,3 +1,4 @@
+-- DB update 2026_03_01_06 -> 2026_03_01_07
 -- Fix Missile Barrage / Clearcasting proc interaction with Arcane Missiles
 -- 1) PROC_ATTR_REQ_SPELLMOD was incorrectly blocking Missile Barrage from
 --    proccing because the channel spell (42846) is not in m_appliedMods.
