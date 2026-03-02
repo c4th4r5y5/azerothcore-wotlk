@@ -1,3 +1,4 @@
+-- DB update 2026_03_02_01 -> 2026_03_02_02
 -- Update gameobject 'The Park' with sniffed values
 -- updated spawns
 DELETE FROM `gameobject` WHERE (`id` IN (24717, 24715, 23301, 23299, 24720, 25353, 25341, 23300, 25354, 24718, 24719, 24721)) AND (`guid` IN (26610, 26643, 42860, 42862, 42866, 42873, 42874, 54963, 61853, 61934, 61939, 61943));
