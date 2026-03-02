@@ -1,3 +1,4 @@
+-- DB update 2026_03_01_07 -> 2026_03_02_00
 
 -- Remove c++ script.
 UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 33214;
