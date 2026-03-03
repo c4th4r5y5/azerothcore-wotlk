@@ -1,3 +1,4 @@
+-- DB update 2026_03_03_01 -> 2026_03_03_02
 -- Add acore_string entries for reset all honor/arena messages
 DELETE FROM `acore_string` WHERE `entry` IN (5118, 5119);
 INSERT INTO `acore_string` (`entry`, `content_default`, `locale_koKR`, `locale_frFR`, `locale_deDE`, `locale_zhCN`, `locale_zhTW`, `locale_esES`, `locale_esMX`, `locale_ruRU`) VALUES
