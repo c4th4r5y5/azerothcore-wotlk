@@ -1,3 +1,4 @@
+-- DB update 2026_03_02_02 -> 2026_03_03_00
 --
 DELETE FROM `acore_string` WHERE `entry` IN (5111, 5112, 5113, 5114, 5115, 5116, 5117);
 INSERT INTO `acore_string` (`entry`, `content_default`, `locale_koKR`, `locale_frFR`, `locale_deDE`, `locale_zhCN`, `locale_zhTW`, `locale_esES`, `locale_esMX`, `locale_ruRU`) VALUES
