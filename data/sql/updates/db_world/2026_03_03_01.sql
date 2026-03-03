@@ -1,3 +1,4 @@
+-- DB update 2026_03_03_00 -> 2026_03_03_01
 UPDATE `acore_string` SET `locale_esES` = 'Has congelado al jugador {}.', `locale_esMX` = 'Has congelado al jugador {}.' WHERE `entry` = 5000;
 UPDATE `acore_string` SET `locale_esES` = 'Puede que sea divertido pero no... ¡no puedes congelarte!', `locale_esMX` = 'Puede que sea divertido pero no... ¡no puedes congelarte!' WHERE `entry` = 5001;
 UPDATE `acore_string` SET `locale_esES` = 'Entrada no válida, verifique el nombre del destino.', `locale_esMX` = 'Entrada no válida, verifique el nombre del destino.' WHERE `entry` = 5002;
