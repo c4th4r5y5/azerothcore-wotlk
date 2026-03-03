@@ -1,3 +1,4 @@
+-- DB update 2026_03_03_02 -> 2026_03_03_03
 
 -- Delete old Waypoints
 DELETE FROM `waypoint_data` WHERE (`id` IN (1362350, 1362360, 1362370, 1362380, 1362410, 1362420, 1362430, 1362440));
