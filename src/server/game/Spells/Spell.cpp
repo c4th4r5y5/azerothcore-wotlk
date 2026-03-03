@@ -3992,7 +3992,9 @@ void Spell::_cast(bool skipCheck)
         handle_immediate();
 
         // Clean up deferred 0-charge spell modifier auras
-        for (Aura* aura : m_appliedMods)
+        // Copy to vector first — aura->Remove() can modify m_appliedMods
+        std::vector<Aura*> appliedModsCopy(m_appliedMods.begin(), m_appliedMods.end());
+        for (Aura* aura : appliedModsCopy)
         {
             if (!aura->IsRemoved() && aura->IsUsingCharges()
                 && !aura->GetCharges())
