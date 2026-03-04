@@ -1,3 +1,4 @@
+-- DB update 2026_03_04_01 -> 2026_03_04_02
 --
 DELETE FROM `creature_loot_template` WHERE (`Entry` = 30260) AND (`Item` IN (45912, 1, 2));
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES

@@ -1,3 +1,4 @@
+-- DB update 2026_03_04_00 -> 2026_03_04_01
 --
 DELETE FROM `gameobject_summon_groups` WHERE `summonerId` = 3737 AND `summonerType` = 1;
 INSERT INTO `gameobject_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `respawnTime`, `Comment`) VALUES
