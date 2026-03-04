@@ -1,3 +1,4 @@
+-- DB update 2026_03_04_02 -> 2026_03_04_03
 
 -- Set delay and orientations.
 UPDATE `waypoint_data` SET `delay` = 30000 WHERE (`id` IN(1365990, 1366000));
