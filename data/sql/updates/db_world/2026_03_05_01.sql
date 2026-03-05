@@ -1,3 +1,4 @@
+-- DB update 2026_03_05_00 -> 2026_03_05_01
 
 -- Add new creatures (sniffed).
 DELETE FROM `creature` WHERE (`id1` IN (34273, 34269, 34271)) AND (`guid` IN (137497, 137512, 137490, 137491, 137513, 137514, 137517));

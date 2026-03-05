@@ -1,3 +1,4 @@
+-- DB update 2026_03_05_02 -> 2026_03_05_03
 
 -- Remove c++ script and set SAI.
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE (`entry` = 34054);
