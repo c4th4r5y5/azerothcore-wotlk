@@ -1,3 +1,4 @@
+-- DB update 2026_03_04_03 -> 2026_03_05_00
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (64436, 64444);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (64436, 'spell_mimiron_magnetic_core_aura'),
