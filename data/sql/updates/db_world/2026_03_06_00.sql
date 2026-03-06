@@ -1,3 +1,4 @@
+-- DB update 2026_03_05_03 -> 2026_03_06_00
 -- Add Spanish (esES/esMX) translations for acore_string entries that were missing them
 
 UPDATE `acore_string` SET `locale_esES` = 'El comando ''{}'' no existe.', `locale_esMX` = 'El comando ''{}'' no existe.' WHERE `entry` = 6;
