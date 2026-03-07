@@ -1,3 +1,4 @@
+-- DB update 2026_03_07_00 -> 2026_03_07_01
 
 -- Create new Guid.
 DELETE FROM `creature` WHERE (`id1` = 33430) AND (`guid` IN (136607));
