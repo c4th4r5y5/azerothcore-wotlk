@@ -1,3 +1,4 @@
+-- DB update 2026_03_07_03 -> 2026_03_07_04
 --
 UPDATE `creature_template` SET `ScriptName` = 'npc_lor_themar_theron' WHERE (`entry` = 16802);
 UPDATE `creature_template` SET `ScriptName` = 'npc_king_varian_wrynn' WHERE (`entry` = 29611);
