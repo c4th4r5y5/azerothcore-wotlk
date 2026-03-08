@@ -1,3 +1,4 @@
+-- DB update 2026_03_08_03 -> 2026_03_08_04
 
 -- Remove Not-Selectable flag (Earthen Stoneshaper)
 UPDATE `creature_template` SET `unit_flags` = `unit_flags` &~33554432 WHERE (`entry` = 33620);
