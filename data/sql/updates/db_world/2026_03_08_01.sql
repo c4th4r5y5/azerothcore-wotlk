@@ -1,3 +1,4 @@
+-- DB update 2026_03_08_00 -> 2026_03_08_01
 ALTER TABLE `creature_classlevelstats` ADD `Strength`  int NOT NULL DEFAULT '0' AFTER `damage_exp2`;
 ALTER TABLE `creature_classlevelstats` ADD `Agility`   int NOT NULL DEFAULT '0' AFTER `Strength`;
 ALTER TABLE `creature_classlevelstats` ADD `Stamina`   int NOT NULL DEFAULT '0' AFTER `Agility`;

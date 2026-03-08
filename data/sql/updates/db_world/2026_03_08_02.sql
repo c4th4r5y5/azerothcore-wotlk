@@ -1,3 +1,4 @@
+-- DB update 2026_03_08_01 -> 2026_03_08_02
 
 --
 -- Update Lady Sinestra's `path_id` to GUID*10 for Lady Sinestras spawn (previously: 23283)
