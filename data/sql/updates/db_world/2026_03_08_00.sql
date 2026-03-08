@@ -1,3 +1,4 @@
+-- DB update 2026_03_07_04 -> 2026_03_08_00
 --
 -- Remove misplaced "Yes, please!" option from menu 9586.
 DELETE FROM `gossip_menu_option` WHERE `MenuID` = 9586 AND `OptionID` = 1;
