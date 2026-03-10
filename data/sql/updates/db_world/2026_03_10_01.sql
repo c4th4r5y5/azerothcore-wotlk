@@ -1,3 +1,4 @@
+-- DB update 2026_03_10_00 -> 2026_03_10_01
 -- Match chances to pre-normalization values (2% -> 3%)
 UPDATE `reference_loot_template` SET `Chance` = 3 WHERE `Entry` = 1200068 AND `Reference` = 1226870;
 UPDATE `reference_loot_template` SET `Chance` = 1.5 WHERE `Entry` = 1200069 AND `Reference` = 1226870;
