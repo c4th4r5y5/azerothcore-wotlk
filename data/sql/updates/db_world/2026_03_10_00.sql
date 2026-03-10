@@ -1,3 +1,4 @@
+-- DB update 2026_03_09_02 -> 2026_03_10_00
 -- Update gameobject 'Deadmines Doors and Levers' with sniffed values
 -- updated spawns
 DELETE FROM `gameobject` WHERE (`id` IN (16399, 17153, 17154, 16400, 101831, 101834, 101832, 101833, 13965, 16397)) AND (`guid` IN (26182, 26183, 26184, 26185, 26188, 26192, 26197, 26206, 30533, 30534));
