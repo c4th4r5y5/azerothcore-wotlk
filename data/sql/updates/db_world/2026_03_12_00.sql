@@ -1,3 +1,4 @@
+-- DB update 2026_03_11_02 -> 2026_03_12_00
 -- .bf queue command and display strings
 -- Syntax: .bf queue #battleid
 -- Displays players in queue, invited, and actively in war for a given battlefield.
