@@ -1191,7 +1191,7 @@ public:
     int32 GetMechanicResistChance(SpellInfo const* spell);
     [[nodiscard]] uint32 GetResistance(SpellSchoolMask mask) const;
     [[nodiscard]] uint32 GetResistance(SpellSchools school) const { return GetUInt32Value(static_cast<uint16>(UNIT_FIELD_RESISTANCES) + school); }
-    static float GetEffectiveResistChance(Unit const* owner, SpellSchoolMask schoolMask, Unit const* victim);
+    static float GetEffectiveResistChance(Unit const* owner, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
 
     void SetResistance(SpellSchools school, int32 val) { SetStatInt32Value(static_cast<uint16>(UNIT_FIELD_RESISTANCES) + school, val); }
     void UpdateResistanceBuffModsMod(SpellSchools school);
