@@ -1,3 +1,4 @@
+-- DB update 2026_03_14_00 -> 2026_03_14_01
 -- Set Fly Waypoints.
 DELETE FROM `waypoints` WHERE `entry` IN (2840600, 2840601);
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `orientation`, `point_comment`) VALUES
