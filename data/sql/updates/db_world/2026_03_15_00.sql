@@ -1,3 +1,4 @@
+-- DB update 2026_03_14_03 -> 2026_03_15_00
 --
 DELETE FROM `smart_scripts` WHERE (`entryorguid` in (-96556)) AND (`source_type` = 0);
 DELETE FROM `waypoints` WHERE (`entry` in (965560));
