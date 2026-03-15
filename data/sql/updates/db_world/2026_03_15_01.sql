@@ -1,3 +1,4 @@
+-- DB update 2026_03_15_00 -> 2026_03_15_01
 -- Hellfire Peninsula - Pools of Aggonar ooze aggro linking
 DELETE FROM `creature_formations` WHERE `leaderGUID` BETWEEN 58465 and 58497;
 DELETE FROM `creature_formations` WHERE `leaderGUID` = 58786;
