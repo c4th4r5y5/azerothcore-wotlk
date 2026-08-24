@@ -12,6 +12,8 @@
 !/modules/*.h
 !/modules/*.cmake
 !/modules/mod-playerbots
+!/modules/mod-multibot-bridge
+!/modules/mod-dungeon-clear
 /build*/
 /var/*
 !/var/build/.gitkeep

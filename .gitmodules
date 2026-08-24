@@ -1,3 +1,9 @@
 [submodule "modules/mod-playerbots"]
 	path = modules/mod-playerbots
 	url = https://github.com/mod-playerbots/mod-playerbots
+[submodule "modules/mod-multibot-bridge"]
+	path = modules/mod-multibot-bridge
+	url = https://github.com/Wishmaster117/mod-multibot-bridge.git
+[submodule "modules/mod-dungeon-clear"]
+	path = modules/mod-dungeon-clear
+	url = https://github.com/jrad7/mod-dungeon-clear.git
