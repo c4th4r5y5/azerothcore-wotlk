@@ -2,7 +2,7 @@
  * mod-tc9-playerbot-presence
  *
  * ToCloud9's cluster layer tracks "who is online" via a NATS event
- * (gw.char.logged-in / gw.char.logged-out) that the *gateway* publishes when
+ * (lb.char.logged-in / lb.char.logged-out) that the *gateway* publishes when
  * a real client finishes CMsgPlayerLogin. Services like charserver build
  * their online-character cache entirely from that event stream.
  *
@@ -18,8 +18,17 @@
  *
  * This module closes that gap: it publishes the same NATS events the
  * gateway would have, for playerbot logins/logouts specifically, using the
- * exact wire format apps/charserver/service/characters-listener.go expects
- * (see ToCloud9/shared/events/events-gateway.go for the payload schema).
+ * exact wire format apps/charserver/service/characters-listener.go expects.
+ *
+ * IMPORTANT: the deployed charserver is still on v0.0.4, which predates the
+ * "game-load-balancer" -> "gateway" rename — it subscribes to the *old*
+ * lb.char.logged-in/-out subjects with a LoadBalancerID field, not the
+ * gw.char.* ones current ToCloud9 HEAD publishes (shared/events/events-
+ * gateway.go). This targets what's actually deployed. If charserver is ever
+ * upgraded past v0.0.4, this needs to switch to the gw.* schema too — and
+ * note the *real* gateway (already on v0.0.5) is publishing gw.char.* right
+ * now, which the v0.0.4 charserver also can't understand, so this same
+ * mismatch likely affects real players' /who and /invite, not just bots.
  *
  * Bot detection uses WorldSession::IsBot() rather than mod-playerbots'
  * GET_PLAYERBOT_AI(): the latter is only populated by an async task queued
@@ -60,13 +69,13 @@ namespace
         return out;
     }
 
-    // gw.char.logged-in payload — mirrors GWEventCharacterLoggedInPayload.
+    // lb.char.logged-in payload — mirrors LBEventCharacterLoggedInPayload.
     std::string BuildLoggedInPayload(Player* player)
     {
         std::ostringstream json;
         json << "{\"v\":\"0.0.1\",\"t\":1,\"p\":{"
              << "\"RealmID\":" << sConfigMgr->GetOption<uint32>("RealmID", 1) << ","
-             << "\"GatewayID\":\"playerbot\","
+             << "\"LoadBalancerID\":\"playerbot\","
              << "\"CharGUID\":" << player->GetGUID().GetCounter() << ","
              << "\"CharName\":\"" << JsonEscape(player->GetName()) << "\","
              << "\"CharRace\":" << uint32(player->getRace()) << ","
@@ -84,13 +93,13 @@ namespace
         return json.str();
     }
 
-    // gw.char.logged-out payload — mirrors GWEventCharacterLoggedOutPayload.
+    // lb.char.logged-out payload — mirrors LBEventCharacterLoggedOutPayload.
     std::string BuildLoggedOutPayload(Player* player)
     {
         std::ostringstream json;
         json << "{\"v\":\"0.0.1\",\"t\":2,\"p\":{"
              << "\"RealmID\":" << sConfigMgr->GetOption<uint32>("RealmID", 1) << ","
-             << "\"GatewayID\":\"playerbot\","
+             << "\"LoadBalancerID\":\"playerbot\","
              << "\"CharGUID\":" << player->GetGUID().GetCounter() << ","
              << "\"CharName\":\"" << JsonEscape(player->GetName()) << "\","
              << "\"CharGuildID\":" << player->GetGuildId() << ","
@@ -110,7 +119,7 @@ public:
         if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !player->GetSession()->IsBot())
             return;
 
-        sToCloud9Sidecar->NatsPublish("gw.char.logged-in", BuildLoggedInPayload(player));
+        sToCloud9Sidecar->NatsPublish("lb.char.logged-in", BuildLoggedInPayload(player));
     }
 
     void OnPlayerLogout(Player* player) override
@@ -118,7 +127,7 @@ public:
         if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !player->GetSession()->IsBot())
             return;
 
-        sToCloud9Sidecar->NatsPublish("gw.char.logged-out", BuildLoggedOutPayload(player));
+        sToCloud9Sidecar->NatsPublish("lb.char.logged-out", BuildLoggedOutPayload(player));
     }
 };
 
