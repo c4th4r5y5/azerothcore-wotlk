@@ -1,41 +1,17 @@
 /*
  * mod-tc9-playerbot-presence
  *
- * ToCloud9's cluster layer tracks "who is online" via a NATS event
- * (lb.char.logged-in / lb.char.logged-out) that the *gateway* publishes when
- * a real client finishes CMsgPlayerLogin. Services like charserver build
- * their online-character cache entirely from that event stream.
+ * Publishes lb.char.logged-in/-out for playerbot logins so charserver's
+ * online-character cache includes bots, fixing /who and /invite by name.
+ * Bots never go through the gateway, so charserver never otherwise learns
+ * they're online.
  *
- * Playerbot characters never go through the gateway at all — mod-playerbots
- * drives them through a fake, in-process WorldSession directly on the
- * worldserver for performance. They're fully real Player objects to the
- * core (duel, trade, chat, targeting all work normally), but since they
- * never trigger the gateway's login event, charserver never learns they
- * exist. That makes them invisible to anything backed by that cache:
- * /who won't list them, and /invite by name resolves through
- * charserver's CharacterOnlineByName, so it fails with "player not found"
- * even though the bot is genuinely online.
+ * Uses the legacy lb.char.* schema, not gw.char.*, because the deployed
+ * charserver is pinned to v0.0.4, which predates that rename. Real players
+ * likely hit the same mismatch, since the live gateway is already v0.0.5.
  *
- * This module closes that gap: it publishes the same NATS events the
- * gateway would have, for playerbot logins/logouts specifically, using the
- * exact wire format apps/charserver/service/characters-listener.go expects.
- *
- * IMPORTANT: the deployed charserver is still on v0.0.4, which predates the
- * "game-load-balancer" -> "gateway" rename — it subscribes to the *old*
- * lb.char.logged-in/-out subjects with a LoadBalancerID field, not the
- * gw.char.* ones current ToCloud9 HEAD publishes (shared/events/events-
- * gateway.go). This targets what's actually deployed. If charserver is ever
- * upgraded past v0.0.4, this needs to switch to the gw.* schema too — and
- * note the *real* gateway (already on v0.0.5) is publishing gw.char.* right
- * now, which the v0.0.4 charserver also can't understand, so this same
- * mismatch likely affects real players' /who and /invite, not just bots.
- *
- * Bot detection uses WorldSession::IsBot() rather than mod-playerbots'
- * GET_PLAYERBOT_AI(): the latter is only populated by an async task queued
- * during login, which hasn't run yet by the time OnPlayerLogin fires here.
- * IsBot() is a plain WorldSession field set synchronously at construction,
- * before HandlePlayerLoginFromDB even starts, and it's core (not a
- * mod-playerbots dependency), so this module needs nothing from it.
+ * Bot detection uses WorldSession::IsBot(), not GET_PLAYERBOT_AI(), since
+ * the latter isn't populated yet when OnPlayerLogin fires.
  */
 
 #include "Config.h"
@@ -73,7 +49,7 @@ namespace
         return out;
     }
 
-    // lb.char.logged-in payload — mirrors LBEventCharacterLoggedInPayload.
+    // Mirrors LBEventCharacterLoggedInPayload.
     std::string BuildLoggedInPayload(Player* player)
     {
         std::ostringstream json;
@@ -97,7 +73,7 @@ namespace
         return json.str();
     }
 
-    // lb.char.logged-out payload — mirrors LBEventCharacterLoggedOutPayload.
+    // Mirrors LBEventCharacterLoggedOutPayload.
     std::string BuildLoggedOutPayload(Player* player)
     {
         std::ostringstream json;
@@ -112,9 +88,7 @@ namespace
         return json.str();
     }
 
-    // Payload fields we care about are unquoted integers (JSON produced by
-    // Go's encoding/json, no whitespace), so a substring-find + strtoull is
-    // plenty robust here without pulling in a JSON library for one caller.
+    // Fields are unquoted integers, so substring-find + strtoull is enough.
     uint64 ExtractUint64Field(std::string const& json, char const* fieldName)
     {
         std::string needle = std::string("\"") + fieldName + "\":";
@@ -124,21 +98,10 @@ namespace
         return std::strtoull(json.c_str() + pos + needle.size(), nullptr, 10);
     }
 
-    // Handles group.invite.created (published by groupserver — see
-    // ToCloud9/shared/events/events-group.go, schema unchanged since v0.0.4
-    // so no version mismatch here, unlike the presence events above). Real
-    // clients get this relayed to them by their gateway session, which shows
-    // the invite popup and sends CMsgGroupAccept when the player clicks
-    // Accept. Bots have neither, so mod-playerbots' own auto-accept action
-    // never fires either — it's gated on Player::GetGroupInvite(), which is
-    // core Group-class state this cluster architecture never populates
-    // (pending invites are a gateway/client-only concept here; the
-    // worldserver's Group mirror only learns about *confirmed* membership,
-    // via TC9GroupHooks::OnGroupMemberAdded). So instead of trying to
-    // replicate that invite state locally, this calls groupserver's
-    // AcceptInvite RPC directly for the bot — the exact same call the
-    // gateway makes when a real player clicks Accept — and lets the normal
-    // group.member.added event flow back through the existing hook.
+    // Bots have no client to click Accept, and mod-playerbots' own
+    // auto-accept is gated on Player::GetGroupInvite(), which this cluster
+    // architecture never populates. Call groupserver's AcceptInvite RPC
+    // directly instead, the same one the gateway calls for real players.
     void OnGroupInviteCreated(char const* /*subject*/, char const* payload, int payloadLen)
     {
         if (!payload || payloadLen <= 0)
@@ -192,11 +155,8 @@ class TC9GroupInviteWatcher : public WorldScript
 public:
     TC9GroupInviteWatcher() : WorldScript("TC9GroupInviteWatcher") {}
 
-    // NOT OnStartup(): sScriptMgr->OnStartup() runs in Main.cpp *before*
-    // sToCloud9Sidecar->Init() does (which is what actually stands up the
-    // NATS connection) — subscribing there is a silent no-op, since
-    // ClusterModeEnabled() is still false at that point. OnUpdate() runs
-    // well after Init() has completed, so subscribe once on the first tick.
+    // Not OnStartup(): it runs before sToCloud9Sidecar->Init(), so
+    // subscribing there is a silent no-op. Subscribe on the first tick.
     void OnUpdate(uint32 /*diff*/) override
     {
         if (_subscribed || !sToCloud9Sidecar->ClusterModeEnabled())
