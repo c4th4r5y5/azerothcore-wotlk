@@ -65,6 +65,10 @@ public:
     // Accepts a pending group invite for characters with no client to click Accept.
     bool GroupAcceptInvite(uint32 realmId, uint64 playerGuid);
 
+    // Creates a group invite via groupserver instead of AzerothCore's local Group class.
+    bool GroupInvite(uint32 realmId, uint64 inviterGuid, uint64 inviteeGuid,
+        std::string const& inviterName, std::string const& inviteeName);
+
 private:
     static void OnMapsReassigned(uint32* addedMaps, int addedMapsSize, uint32* removedMaps, int removedMapsSize);
 

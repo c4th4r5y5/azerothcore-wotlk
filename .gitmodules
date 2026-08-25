@@ -1,6 +1,6 @@
 [submodule "modules/mod-playerbots"]
 	path = modules/mod-playerbots
-	url = https://github.com/mod-playerbots/mod-playerbots
+	url = https://github.com/c4th4r5y5/mod-playerbots.git
 [submodule "modules/mod-multibot-bridge"]
 	path = modules/mod-multibot-bridge
 	url = https://github.com/Wishmaster117/mod-multibot-bridge.git

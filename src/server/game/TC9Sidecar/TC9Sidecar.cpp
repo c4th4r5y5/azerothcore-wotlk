@@ -200,6 +200,15 @@ bool ToCloud9Sidecar::GroupAcceptInvite(uint32 realmId, uint64 playerGuid)
     return TC9GroupAcceptInvite(realmId, playerGuid) == 0;
 }
 
+bool ToCloud9Sidecar::GroupInvite(uint32 realmId, uint64 inviterGuid, uint64 inviteeGuid,
+    std::string const& inviterName, std::string const& inviteeName)
+{
+    if (!_clusterModeEnabled)
+        return false;
+
+    return TC9GroupInvite(realmId, inviterGuid, inviteeGuid, inviterName.c_str(), inviteeName.c_str()) == 0;
+}
+
 void ToCloud9Sidecar::OnMapsReassigned(uint32* addedMaps, int addedMapsSize, uint32* removedMaps, int removedMapsSize)
 {
     std::vector<uint32_t> newMapIDs;
