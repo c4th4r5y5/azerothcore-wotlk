@@ -1,14 +1,10 @@
 /*
  * mod-tc9-playerbot-presence
  *
- * Publishes lb.char.logged-in/-out for playerbot logins so charserver's
+ * Publishes gw.char.logged-in/-out for playerbot logins so charserver's
  * online-character cache includes bots, fixing /who and /invite by name.
  * Bots never go through the gateway, so charserver never otherwise learns
  * they're online.
- *
- * Uses the legacy lb.char.* schema, not gw.char.*, because the deployed
- * charserver is pinned to v0.0.4, which predates that rename. Real players
- * likely hit the same mismatch, since the live gateway is already v0.0.5.
  *
  * Bot detection uses WorldSession::IsBot(), not GET_PLAYERBOT_AI(), since
  * the latter isn't populated yet when OnPlayerLogin fires.
@@ -49,13 +45,13 @@ namespace
         return out;
     }
 
-    // Mirrors LBEventCharacterLoggedInPayload.
+    // Mirrors GWEventCharacterLoggedInPayload.
     std::string BuildLoggedInPayload(Player* player)
     {
         std::ostringstream json;
         json << "{\"v\":\"0.0.1\",\"t\":1,\"p\":{"
              << "\"RealmID\":" << sConfigMgr->GetOption<uint32>("RealmID", 1) << ","
-             << "\"LoadBalancerID\":\"playerbot\","
+             << "\"GatewayID\":\"playerbot\","
              << "\"CharGUID\":" << player->GetGUID().GetCounter() << ","
              << "\"CharName\":\"" << JsonEscape(player->GetName()) << "\","
              << "\"CharRace\":" << uint32(player->getRace()) << ","
@@ -73,13 +69,13 @@ namespace
         return json.str();
     }
 
-    // Mirrors LBEventCharacterLoggedOutPayload.
+    // Mirrors GWEventCharacterLoggedOutPayload.
     std::string BuildLoggedOutPayload(Player* player)
     {
         std::ostringstream json;
         json << "{\"v\":\"0.0.1\",\"t\":2,\"p\":{"
              << "\"RealmID\":" << sConfigMgr->GetOption<uint32>("RealmID", 1) << ","
-             << "\"LoadBalancerID\":\"playerbot\","
+             << "\"GatewayID\":\"playerbot\","
              << "\"CharGUID\":" << player->GetGUID().GetCounter() << ","
              << "\"CharName\":\"" << JsonEscape(player->GetName()) << "\","
              << "\"CharGuildID\":" << player->GetGuildId() << ","
@@ -138,7 +134,7 @@ public:
         if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !player->GetSession()->IsBot())
             return;
 
-        sToCloud9Sidecar->NatsPublish("lb.char.logged-in", BuildLoggedInPayload(player));
+        sToCloud9Sidecar->NatsPublish("gw.char.logged-in", BuildLoggedInPayload(player));
     }
 
     void OnPlayerLogout(Player* player) override
@@ -146,7 +142,7 @@ public:
         if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !player->GetSession()->IsBot())
             return;
 
-        sToCloud9Sidecar->NatsPublish("lb.char.logged-out", BuildLoggedOutPayload(player));
+        sToCloud9Sidecar->NatsPublish("gw.char.logged-out", BuildLoggedOutPayload(player));
     }
 };
 
