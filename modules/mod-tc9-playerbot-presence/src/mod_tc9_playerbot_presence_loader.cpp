@@ -39,6 +39,7 @@
  */
 
 #include "Config.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -157,7 +158,10 @@ namespace
         if (!invitee || !invitee->GetSession() || !invitee->GetSession()->IsBot())
             return;
 
-        sToCloud9Sidecar->GroupAcceptInvite(realmId ? realmId : sConfigMgr->GetOption<uint32>("RealmID", 1), inviteeGuid);
+        bool accepted = sToCloud9Sidecar->GroupAcceptInvite(
+            realmId ? realmId : sConfigMgr->GetOption<uint32>("RealmID", 1), inviteeGuid);
+        LOG_INFO("server", "TC9GroupInviteWatcher: bot {} (GUID {}) invite accept {}",
+            invitee->GetName(), inviteeGuid, accepted ? "succeeded" : "failed");
     }
 }
 
@@ -188,10 +192,23 @@ class TC9GroupInviteWatcher : public WorldScript
 public:
     TC9GroupInviteWatcher() : WorldScript("TC9GroupInviteWatcher") {}
 
-    void OnStartup() override
+    // NOT OnStartup(): sScriptMgr->OnStartup() runs in Main.cpp *before*
+    // sToCloud9Sidecar->Init() does (which is what actually stands up the
+    // NATS connection) — subscribing there is a silent no-op, since
+    // ClusterModeEnabled() is still false at that point. OnUpdate() runs
+    // well after Init() has completed, so subscribe once on the first tick.
+    void OnUpdate(uint32 /*diff*/) override
     {
-        sToCloud9Sidecar->NatsSubscribe("group.invite.created", &OnGroupInviteCreated);
+        if (_subscribed || !sToCloud9Sidecar->ClusterModeEnabled())
+            return;
+
+        _subscribed = sToCloud9Sidecar->NatsSubscribe("group.invite.created", &OnGroupInviteCreated);
+        LOG_INFO("server", "TC9GroupInviteWatcher: subscribe to group.invite.created {}",
+            _subscribed ? "succeeded" : "failed");
     }
+
+private:
+    bool _subscribed = false;
 };
 
 void Addmod_tc9_playerbot_presenceScripts()
