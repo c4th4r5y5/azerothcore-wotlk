@@ -14,6 +14,7 @@
 !/modules/mod-playerbots
 !/modules/mod-multibot-bridge
 !/modules/mod-dungeon-clear
+!/modules/mod-tc9-playerbot-presence
 /build*/
 /var/*
 !/var/build/.gitkeep
