@@ -20,14 +20,20 @@
  * gateway would have, for playerbot logins/logouts specifically, using the
  * exact wire format apps/charserver/service/characters-listener.go expects
  * (see ToCloud9/shared/events/events-gateway.go for the payload schema).
+ *
+ * Bot detection uses WorldSession::IsBot() rather than mod-playerbots'
+ * GET_PLAYERBOT_AI(): the latter is only populated by an async task queued
+ * during login, which hasn't run yet by the time OnPlayerLogin fires here.
+ * IsBot() is a plain WorldSession field set synchronously at construction,
+ * before HandlePlayerLoginFromDB even starts, and it's core (not a
+ * mod-playerbots dependency), so this module needs nothing from it.
  */
 
 #include "Config.h"
 #include "Player.h"
-#include "PlayerbotAI.h"
-#include "Playerbots.h"
 #include "ScriptMgr.h"
 #include "TC9Sidecar.h"
+#include "WorldSession.h"
 
 #include <sstream>
 
@@ -101,7 +107,7 @@ public:
 
     void OnPlayerLogin(Player* player) override
     {
-        if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !GET_PLAYERBOT_AI(player))
+        if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !player->GetSession()->IsBot())
             return;
 
         sToCloud9Sidecar->NatsPublish("gw.char.logged-in", BuildLoggedInPayload(player));
@@ -109,7 +115,7 @@ public:
 
     void OnPlayerLogout(Player* player) override
     {
-        if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !GET_PLAYERBOT_AI(player))
+        if (!player || !sToCloud9Sidecar->ClusterModeEnabled() || !player->GetSession()->IsBot())
             return;
 
         sToCloud9Sidecar->NatsPublish("gw.char.logged-out", BuildLoggedOutPayload(player));
