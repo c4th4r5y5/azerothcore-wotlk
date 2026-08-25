@@ -39,12 +39,15 @@
  */
 
 #include "Config.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "TC9Sidecar.h"
 #include "WorldSession.h"
 
+#include <cstdlib>
 #include <sstream>
+#include <string>
 
 namespace
 {
@@ -107,6 +110,55 @@ namespace
              << "}}";
         return json.str();
     }
+
+    // Payload fields we care about are unquoted integers (JSON produced by
+    // Go's encoding/json, no whitespace), so a substring-find + strtoull is
+    // plenty robust here without pulling in a JSON library for one caller.
+    uint64 ExtractUint64Field(std::string const& json, char const* fieldName)
+    {
+        std::string needle = std::string("\"") + fieldName + "\":";
+        size_t pos = json.find(needle);
+        if (pos == std::string::npos)
+            return 0;
+        return std::strtoull(json.c_str() + pos + needle.size(), nullptr, 10);
+    }
+
+    // Handles group.invite.created (published by groupserver — see
+    // ToCloud9/shared/events/events-group.go, schema unchanged since v0.0.4
+    // so no version mismatch here, unlike the presence events above). Real
+    // clients get this relayed to them by their gateway session, which shows
+    // the invite popup and sends CMsgGroupAccept when the player clicks
+    // Accept. Bots have neither, so mod-playerbots' own auto-accept action
+    // never fires either — it's gated on Player::GetGroupInvite(), which is
+    // core Group-class state this cluster architecture never populates
+    // (pending invites are a gateway/client-only concept here; the
+    // worldserver's Group mirror only learns about *confirmed* membership,
+    // via TC9GroupHooks::OnGroupMemberAdded). So instead of trying to
+    // replicate that invite state locally, this calls groupserver's
+    // AcceptInvite RPC directly for the bot — the exact same call the
+    // gateway makes when a real player clicks Accept — and lets the normal
+    // group.member.added event flow back through the existing hook.
+    void OnGroupInviteCreated(char const* /*subject*/, char const* payload, int payloadLen)
+    {
+        if (!payload || payloadLen <= 0)
+            return;
+
+        std::string json(payload, size_t(payloadLen));
+
+        uint32 realmId = uint32(ExtractUint64Field(json, "RealmID"));
+        uint64 inviteeGuid = ExtractUint64Field(json, "InviteeGUID");
+        if (!inviteeGuid)
+            return;
+
+        if (realmId && realmId != sConfigMgr->GetOption<uint32>("RealmID", 1))
+            return;
+
+        Player* invitee = ObjectAccessor::FindPlayer(ObjectGuid(inviteeGuid));
+        if (!invitee || !invitee->GetSession() || !invitee->GetSession()->IsBot())
+            return;
+
+        sToCloud9Sidecar->GroupAcceptInvite(realmId ? realmId : sConfigMgr->GetOption<uint32>("RealmID", 1), inviteeGuid);
+    }
 }
 
 class TC9PlayerbotPresence : public PlayerScript
@@ -131,7 +183,19 @@ public:
     }
 };
 
+class TC9GroupInviteWatcher : public WorldScript
+{
+public:
+    TC9GroupInviteWatcher() : WorldScript("TC9GroupInviteWatcher") {}
+
+    void OnStartup() override
+    {
+        sToCloud9Sidecar->NatsSubscribe("group.invite.created", &OnGroupInviteCreated);
+    }
+};
+
 void Addmod_tc9_playerbot_presenceScripts()
 {
     new TC9PlayerbotPresence();
+    new TC9GroupInviteWatcher();
 }

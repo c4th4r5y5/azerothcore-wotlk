@@ -192,6 +192,14 @@ bool ToCloud9Sidecar::NatsSubscribe(std::string const& subject, void (*handler)(
     return TC9NatsSubscribe(subject.c_str(), handler) == 0;
 }
 
+bool ToCloud9Sidecar::GroupAcceptInvite(uint32 realmId, uint64 playerGuid)
+{
+    if (!_clusterModeEnabled)
+        return false;
+
+    return TC9GroupAcceptInvite(realmId, playerGuid) == 0;
+}
+
 void ToCloud9Sidecar::OnMapsReassigned(uint32* addedMaps, int addedMapsSize, uint32* removedMaps, int removedMapsSize)
 {
     std::vector<uint32_t> newMapIDs;

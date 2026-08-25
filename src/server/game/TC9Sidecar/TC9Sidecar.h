@@ -62,6 +62,11 @@ public:
     bool NatsPublish(std::string const& subject, std::string const& payload);
     bool NatsSubscribe(std::string const& subject, void (*handler)(char const* subject, char const* payload, int payloadLen));
 
+    // Accepts a pending group invite on behalf of playerGuid via the group
+    // service directly (bypassing the normal client Accept-button flow) —
+    // for characters, like bots, that have no real client to click Accept.
+    bool GroupAcceptInvite(uint32 realmId, uint64 playerGuid);
+
 private:
     static void OnMapsReassigned(uint32* addedMaps, int addedMapsSize, uint32* removedMaps, int removedMapsSize);
 
