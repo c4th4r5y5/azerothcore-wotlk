@@ -21,6 +21,7 @@
 #include "ScriptMgr.h"
 #include "TC9Sidecar.h"
 #include "WorldSession.h"
+#include "WorldSessionMgr.h"
 
 #include <cstdlib>
 #include <sstream>
@@ -279,20 +280,43 @@ public:
 
     // Not OnStartup(): it runs before sToCloud9Sidecar->Init(), so
     // subscribing there is a silent no-op. Subscribe on the first tick.
-    void OnUpdate(uint32 /*diff*/) override
+    void OnUpdate(uint32 diff) override
     {
-        if (_subscribed || !sToCloud9Sidecar->ClusterModeEnabled())
+        if (!sToCloud9Sidecar->ClusterModeEnabled())
             return;
 
-        _subscribed = true;
-        Subscribe("group.invite.created", &OnGroupInviteCreated);
-        Subscribe("chat.gw.playerbot.income.whisper", &OnBotWhisperReceived);
-        Subscribe("group.message.new", &OnGroupChatMessage);
-        Subscribe("guild.message.new", &OnGuildChatMessage);
+        if (!_subscribed)
+        {
+            _subscribed = true;
+            Subscribe("group.invite.created", &OnGroupInviteCreated);
+            Subscribe("chat.gw.playerbot.income.whisper", &OnBotWhisperReceived);
+            Subscribe("group.message.new", &OnGroupChatMessage);
+            Subscribe("guild.message.new", &OnGuildChatMessage);
+        }
+
+        // Presence is otherwise published once at login only, so anything
+        // that changes afterward (mod-playerbots levels/moves bots on its
+        // own, with no logout/login) goes stale in charserver's cache
+        // forever. Periodically republish; Add() is a plain upsert.
+        _refreshTimer += diff;
+        if (_refreshTimer < REFRESH_INTERVAL_MS)
+            return;
+        _refreshTimer = 0;
+
+        for (auto const& entry : sWorldSessionMgr->GetAllSessions())
+        {
+            WorldSession* session = entry.second;
+            Player* bot = session && session->IsBot() ? session->GetPlayer() : nullptr;
+            if (bot)
+                sToCloud9Sidecar->NatsPublish("gw.char.logged-in", BuildLoggedInPayload(bot));
+        }
     }
 
 private:
+    static constexpr uint32 REFRESH_INTERVAL_MS = 60000;
+
     bool _subscribed = false;
+    uint32 _refreshTimer = 0;
 
     static void Subscribe(std::string const& subject, void (*handler)(char const*, char const*, int))
     {
