@@ -67,7 +67,7 @@ public:
 
     // Creates a group invite via groupserver instead of AzerothCore's local Group class.
     bool GroupInvite(uint32 realmId, uint64 inviterGuid, uint64 inviteeGuid,
-        std::string const& inviterName, std::string const& inviteeName);
+        std::string const& inviterName, std::string const& inviteeName, uint32 inviterMapId);
 
 private:
     static void OnMapsReassigned(uint32* addedMaps, int addedMapsSize, uint32* removedMaps, int removedMapsSize);
