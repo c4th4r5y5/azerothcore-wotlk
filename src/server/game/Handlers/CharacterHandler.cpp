@@ -847,28 +847,20 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
             chH.PSendSysMessage("{}", GitRevision::GetFullVersion());
     }
 
-    if (!sToCloud9Sidecar->ClusterModeEnabled())
+    if (uint32 guildId = sCharacterCache->GetCharacterGuildIdByGuid(pCurrChar->GetGUID()))
     {
-        if (uint32 guildId = sCharacterCache->GetCharacterGuildIdByGuid(pCurrChar->GetGUID()))
+        Guild* guild = sGuildMgr->GetGuildById(guildId);
+        Guild::Member const* member = guild ? guild->GetMember(pCurrChar->GetGUID()) : nullptr;
+        if (member)
         {
-            Guild* guild = sGuildMgr->GetGuildById(guildId);
-            Guild::Member const* member = guild ? guild->GetMember(pCurrChar->GetGUID()) : nullptr;
-            if (member)
-            {
-                pCurrChar->SetInGuild(guildId);
-                pCurrChar->SetRank(member->GetRankId());
-                guild->SendLoginInfo(this);
-            }
-            else
-            {
-                LOG_ERROR("network.opcode", "Player {} ({}) marked as member of not existing guild (id: {}), removing guild membership for player.",
-                    pCurrChar->GetName(), pCurrChar->GetGUID().ToString(), guildId);
-                pCurrChar->SetInGuild(0);
-                pCurrChar->SetRank(0);
-            }
+            pCurrChar->SetInGuild(guildId);
+            pCurrChar->SetRank(member->GetRankId());
+            guild->SendLoginInfo(this);
         }
         else
         {
+            LOG_ERROR("network.opcode", "Player {} ({}) marked as member of not existing guild (id: {}), removing guild membership for player.",
+                pCurrChar->GetName(), pCurrChar->GetGUID().ToString(), guildId);
             pCurrChar->SetInGuild(0);
             pCurrChar->SetRank(0);
         }
