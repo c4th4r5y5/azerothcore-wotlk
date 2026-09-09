@@ -95,6 +95,22 @@ public:
 
         sGuildMgr->AddGuild(guild);
 
+        // Guild::Create() -> AddMember() sets the leader's live guild state
+        // and populates their roster entry before this guild is registered
+        // with GuildMgr, using its own online-player lookup rather than the
+        // playerTarget we already resolved. Re-assert everything from
+        // playerTarget directly, now that the guild is registered, so the
+        // leader's own client and roster entry are guaranteed correct no
+        // matter what happened inside Create().
+        playerTarget->SetInGuild(guild->GetId());
+        playerTarget->SetRank(GR_GUILDMASTER);
+        if (Guild::Member* member = guild->GetMember(playerTarget->GetGUID()))
+        {
+            member->SetStats(playerTarget);
+            member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
+        }
+        guild->SendLoginInfo(playerTarget->GetSession());
+
         return true;
     }
 
